@@ -471,8 +471,18 @@ svg.svg-dark-color path {
     transition: fill 0.3s ease;
 }
 
+svg.svg-dark-color:hover path {
+    fill: #ffd95b;
+    transition: fill 0.3s ease;
+}
+
 svg.svg-coffee-color path {
     fill: #8b8b8b;
+    transition: fill 0.3s ease;
+}
+
+svg.svg-coffee-color:hover path {
+    fill: #ffffff;
     transition: fill 0.3s ease;
 }
 
@@ -777,4 +787,14 @@ tr:hover .node-url {
   
 .header-status-engine {
     color: #222222; /* green font color */
+}
+
+#popup-button-hive:hover {
+    color: #00e065;
+    transition: fill 0.3s ease;
+}
+
+#popup-button-engine:hover {
+    color: #00e065;
+    transition: fill 0.3s ease;
 }
