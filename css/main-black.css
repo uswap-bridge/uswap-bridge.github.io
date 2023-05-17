@@ -600,6 +600,7 @@ svg.svg-coffee-color:hover path {
     }
     .popup-by-container-hive > div {
       justify-content: flex-end;
+      margin-right: 10px; /* Add a small margin to the left */
     }
     .popup-by-container-hive {
       flex-basis: 50%;
