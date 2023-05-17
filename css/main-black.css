@@ -560,6 +560,13 @@ svg.svg-coffee-color path {
         align-items: center;
     }
 }
+
+@media (max-width: 767px) {
+    .bottom-bar {
+        flex-direction: column;
+        align-items: center;
+    }
+}
   
 .developed-by-container {
     padding-left: 10px;
