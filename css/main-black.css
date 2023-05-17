@@ -521,6 +521,13 @@ svg.svg-coffee-color path {
     align-items: center;
     padding: 5px;
 }
+
+.popup-by-container > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
   
 .theme-buttons-container {
     display: flex;
@@ -528,23 +535,30 @@ svg.svg-coffee-color path {
     justify-content: flex-end;
     padding-right: 10px;
 }
-  
+
 .theme-buttons-container button {
     width: 30px;
     height: 30px;
     padding: 0;
     margin-left: 5px;
 }
-  
+
 .theme-buttons-container svg {
     width: 100%;
     height: 100%;
 }
-  
+
 .themes-color {
     margin-right: 10px;
     align-items: center;
     color: #ffffff;
+}
+
+@media (max-width: 480px) {
+    .popup-by-container {
+        flex-direction: column;
+        align-items: center;
+    }
 }
   
 .developed-by-container {
