@@ -532,13 +532,21 @@ svg.svg-coffee-color:hover path {
     padding: 5px;
 }
 
-.popup-by-container > div {
+.developed-by-container,
+.popup-by-container-hive,
+.popup-by-container-engine,
+.theme-buttons-container {
+    flex-basis: 100%;
+}
+
+.popup-by-container-hive > div,
+.popup-by-container-engine > div {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
 }
-  
+
 .theme-buttons-container {
     display: flex;
     align-items: center;
@@ -564,17 +572,25 @@ svg.svg-coffee-color:hover path {
     color: #ffffff;
 }
 
-@media (max-width: 480px) {
-    .popup-by-container {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
 @media (max-width: 767px) {
     .bottom-bar {
         flex-direction: column;
         align-items: center;
+    }
+    .popup-by-container-hive,
+    .popup-by-container-engine {
+        flex-basis: 100%;
+        text-align: center;
+    }
+}
+
+@media (min-width: 768px) {
+    .bottom-bar {
+        flex-wrap: nowrap;
+    }
+    .popup-by-container-hive,
+    .popup-by-container-engine {
+        flex-basis: auto;
     }
 }
   
