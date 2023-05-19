@@ -51,7 +51,7 @@ $(window).bind("load", function () {
           statusElement.classList.add("fail");
         }
     };
-      
+    
     async function addHiveNodes() {
         try 
         {
@@ -59,7 +59,16 @@ $(window).bind("load", function () {
             var popupHive = document.getElementById("popup-container-hive");
             const tableBody = document.querySelector("#api-list-hive tbody");
             const workingNodes = [];
-            const failedNodes = [];
+            const failedNodes = [];            
+
+            // Function to enable the button
+            function enableButton() 
+            {
+                buttonHive.disabled = false;
+            }
+
+            // Clear the existing table body content
+            tableBody.innerHTML = "";
     
             for (let i = 0; i < rpc_nodes.length; i++) 
             {
@@ -79,9 +88,6 @@ $(window).bind("load", function () {
     
                 // Check node status
                 checkHiveNodeStatus(nodeUrl, statusCell);
-    
-                // Check node status every minute
-                setInterval(() => checkHiveNodeStatus(nodeUrl, statusCell), 60 * 1000);
             }
     
             // Reorder the list of nodes based on their status
@@ -89,9 +95,12 @@ $(window).bind("load", function () {
                 const rows = Array.from(tableBody.getElementsByTagName("tr"));
     
                 rows.forEach((row) => {
-                    if (row.lastChild.textContent === "Working") {
+                    if (row.lastChild.textContent === "Working") 
+                    {
                         workingNodes.push(row);
-                    } else {
+                    } 
+                    else 
+                    {
                         failedNodes.push(row);
                     }
                 });
@@ -131,6 +140,8 @@ $(window).bind("load", function () {
     
                     // Hide the popup
                     popupHive.style.display = "none";
+                    
+                    enableButton();
     
                     // Reload the page after 1 second (adjust the time as needed)
                     setTimeout(function () {
@@ -143,9 +154,9 @@ $(window).bind("load", function () {
         {
             console.log("Error at addHiveNodes(): ", error);
         }
-    }; 
+    };
 
-    async function checkEngineNodeStatus(nodeUrl, statusElement) {
+    async function checkEngineNodeStatus(nodeUrl, statusElement) {        
         try 
         {
             const response = await axios.get(nodeUrl);
@@ -171,13 +182,20 @@ $(window).bind("load", function () {
     };
 
     async function addEngineNodes() {
-        try 
-        {
+        try {
             var buttonEngine = document.getElementById("popup-button-engine");
             var popupEngine = document.getElementById("popup-container-engine");
             const tableBody = document.querySelector("#api-list-engine tbody");
             const workingNodes = [];
             const failedNodes = [];
+    
+            // Function to enable the button
+            function enableButton() {
+                buttonEngine.disabled = false;
+            }
+    
+            // Clear the existing table body content
+            tableBody.innerHTML = "";
     
             for (let i = 0; i < he_rpc_nodes.length; i++) 
             {
@@ -197,9 +215,6 @@ $(window).bind("load", function () {
     
                 // Check node status
                 checkEngineNodeStatus(nodeUrl, statusCell);
-    
-                // Check node status every minute
-                setInterval(() => checkEngineNodeStatus(nodeUrl, statusCell), 60 * 1000);
             }
     
             // Reorder the list of nodes based on their status
@@ -250,6 +265,8 @@ $(window).bind("load", function () {
                     // Hide the popup
                     popupEngine.style.display = "none";
     
+                    enableButton();
+    
                     // Reload the page after 1 second (adjust the time as needed)
                     setTimeout(function () {
                         location.reload();
@@ -262,6 +279,7 @@ $(window).bind("load", function () {
             console.log("Error at addEngineNodes(): ", error);
         }
     };
+    
 
     async function initializeHiveAPI() {
         var selectedEndpoint = await getSelectedEndpoint();
@@ -611,31 +629,56 @@ $(window).bind("load", function () {
     
         loadHiveNode();
         loadEngineNode(); 
-    });
+    }); 
 
     async function loadHiveNode() {
         try 
         {
             // Get a reference to the button and the popup container
             var buttonHive = document.getElementById("popup-button-hive");
-            var popupHive = document.getElementById("popup-container-hive");
-        
+            var popupHive = document.getElementById("popup-container-hive");          
+    
+            // Store the interval ID
+            var addHiveNodesInterval;
+
+            // Function to disable the button
+            function disableButton() {
+                buttonHive.disabled = true;
+            }
+
+            // Function to enable the button
+            function enableButton() {
+                buttonHive.disabled = false;
+            }
+    
             // Add an event listener to the button
             buttonHive.addEventListener("click", function () {
                 // Show the popup
                 popupHive.style.display = "block";
+                disableButton();
                 addHiveNodes();
+                addHiveNodesInterval = setInterval(addHiveNodes, 60000);
             });
+    
+            // Get a reference to the API list table body
+            var tableBodyHive = document.querySelector("#api-list-hive tbody");
     
             // Add an event listener to the close button
             var closeButtonHive = document.getElementById("close-button-hive");
             closeButtonHive.addEventListener("click", function () {
                 // Hide the popup
                 popupHive.style.display = "none";
-            });
+                enableButton();
     
-            // Get a reference to the API list table body
-            var tableBodyHive = document.querySelector("#api-list-hive tbody");
+                // Clear the interval if it exists
+                if (addHiveNodesInterval) 
+                {
+                    clearInterval(addHiveNodesInterval);
+                }
+    
+                // Remove all rows from the table body
+                tableBodyHive.innerHTML = "";
+            });
     
             // Add an event listener to the table body
             tableBodyHive.addEventListener("click", function (event) {
@@ -657,6 +700,10 @@ $(window).bind("load", function () {
     
                     // Hide the popup
                     popupHive.style.display = "none";
+                    enableButton();
+    
+                    // Remove all rows from the table body
+                    tableBodyHive.innerHTML = "";
     
                     // Reload the page after 1 second (adjust the time as needed)
                     setTimeout(function () {
@@ -664,12 +711,27 @@ $(window).bind("load", function () {
                     }, 1000);
                 }
             });
+
+            // Add an event listener to check if the popup is still open after 1 minute
+            popupHive.addEventListener("transitionend", function () {
+                if (popupHive.style.display === "block") 
+                {
+                    // Clear the interval if it exists
+                    if (addHiveNodesInterval) {
+                        clearInterval(addHiveNodesInterval);
+                    }
+
+                    // Update the current set of APIs
+                    addHiveNodes();
+                    addHiveNodesInterval = setInterval(addHiveNodes, 60000);
+                }
+            });
         } 
         catch (error) 
         {
             console.log("Error at loadHiveNode(): ", error);
         }
-    }; 
+    };
     
     async function loadEngineNode() {
         try 
@@ -677,24 +739,51 @@ $(window).bind("load", function () {
             // Get a reference to the button and the popup container
             var buttonEngine = document.getElementById("popup-button-engine");
             var popupEngine = document.getElementById("popup-container-engine");
-        
+
+            // Store the interval ID
+            var addEngineNodesInterval;
+
+            // Function to disable the button
+            function disableButton() 
+            {
+                buttonEngine.disabled = true;
+            }
+
+            // Function to enable the button
+            function enableButton() 
+            {
+                buttonEngine.disabled = false;
+            }
+
             // Add an event listener to the button
             buttonEngine.addEventListener("click", function () {
                 // Show the popup
                 popupEngine.style.display = "block";
+                disableButton();
                 addEngineNodes();
+                addEngineNodesInterval = setInterval(addEngineNodes, 60000);
             });
-    
+
+            // Get a reference to the API list table body
+            var tableBodyEngine = document.querySelector("#api-list-engine tbody");
+
             // Add an event listener to the close button
             var closeButtonEngine = document.getElementById("close-button-engine");
             closeButtonEngine.addEventListener("click", function () {
                 // Hide the popup
                 popupEngine.style.display = "none";
+                enableButton();
+
+                // Clear the interval if it exists
+                if (addEngineNodesInterval) 
+                {
+                    clearInterval(addEngineNodesInterval);
+                }
+
+                // Remove all rows from the table body
+                tableBodyEngine.innerHTML = "";
             });
-    
-            // Get a reference to the API list table body
-            var tableBodyEngine = document.querySelector("#api-list-engine tbody");
-    
+
             // Add an event listener to the table body
             tableBodyEngine.addEventListener("click", function (event) {
                 var target = event.target;
@@ -702,24 +791,43 @@ $(window).bind("load", function () {
                 {
                     // Get the node URL from the first cell in the row
                     var nodeUrl = target.parentNode.cells[0].textContent;
-    
+
                     // Set the API endpoint to the selected node
                     ssc = new SSC(nodeUrl);
-    
+
                     // Update the button text
                     buttonEngine.value = nodeUrl;
                     buttonEngine.innerHTML = nodeUrl;
-    
+
                     // Save the selected endpoint to local storage
                     localStorage.setItem("selectedEngEndpoint", nodeUrl);
-    
+
                     // Hide the popup
                     popupEngine.style.display = "none";
-    
+                    enableButton();
+
+                    // Remove all rows from the table body
+                    tableBodyEngine.innerHTML = "";
+
                     // Reload the page after 1 second (adjust the time as needed)
                     setTimeout(function () {
                         location.reload();
                     }, 1000);
+                }
+            });
+
+            // Add an event listener to check if the popup is still open after 1 minute
+            popupEngine.addEventListener("transitionend", function () {
+                if (popupEngine.style.display === "block") 
+                {
+                    // Clear the interval if it exists
+                    if (addEngineNodesInterval) {
+                        clearInterval(addEngineNodesInterval);
+                    }
+
+                    // Update the current set of APIs
+                    addEngineNodes();
+                    addEngineNodesInterval = setInterval(addEngineNodes, 60000);
                 }
             });
         } 
@@ -728,6 +836,7 @@ $(window).bind("load", function () {
             console.log("Error at loadEngineNode(): ", error);
         }
     };
+
 
     $(window).scroll(function() {
         var scrollHeight = $(document).height() - $(window).height();
