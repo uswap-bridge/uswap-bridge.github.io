@@ -55,59 +55,89 @@ $(window).bind("load", function () {
     async function addHiveNodes() {
         try 
         {
+            var buttonHive = document.getElementById("popup-button-hive");
+            var popupHive = document.getElementById("popup-container-hive");
             const tableBody = document.querySelector("#api-list-hive tbody");
             const workingNodes = [];
             const failedNodes = [];
-        
+    
             for (let i = 0; i < rpc_nodes.length; i++) 
             {
                 const nodeUrl = rpc_nodes[i];
                 const row = document.createElement("tr");
                 const urlCell = document.createElement("td");
                 const statusCell = document.createElement("td");
-        
+    
                 urlCell.textContent = nodeUrl;
                 urlCell.classList.add("node-url"); // add new class to url cell
                 statusCell.textContent = "Checking...";
-        
+    
                 row.appendChild(urlCell);
                 row.appendChild(statusCell);
-        
+    
                 tableBody.appendChild(row);
-        
+    
                 // Check node status
                 checkHiveNodeStatus(nodeUrl, statusCell);
-        
+    
                 // Check node status every minute
                 setInterval(() => checkHiveNodeStatus(nodeUrl, statusCell), 60 * 1000);
             }
-      
+    
             // Reorder the list of nodes based on their status
             setTimeout(() => {
                 const rows = Array.from(tableBody.getElementsByTagName("tr"));
-        
+    
                 rows.forEach((row) => {
-                    if (row.lastChild.textContent === "Working") 
-                    {
+                    if (row.lastChild.textContent === "Working") {
                         workingNodes.push(row);
-                    } 
-                    else 
-                    {
+                    } else {
                         failedNodes.push(row);
                     }
                 });
-        
+    
                 tableBody.innerHTML = "";
-        
+    
                 // Append workingNodes first, then failedNodes
                 workingNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
-        
+    
                 failedNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
             }, 5000);
+    
+            // Add event listeners to the rows in the table body
+            var rowsHive = tableBody.getElementsByTagName("tr");
+            for (var i = 0; i < rowsHive.length; i++) 
+            {
+                rowsHive[i].addEventListener("click", function (event) {
+                    // Prevent the default link behavior
+                    event.preventDefault();
+    
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = this.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    hive.api.setOptions({ url: nodeUrl });
+    
+                    // Update the button text
+                    buttonHive.value = nodeUrl;
+                    buttonHive.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupHive.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                });
+            }
         } 
         catch (error) 
         {
@@ -143,59 +173,89 @@ $(window).bind("load", function () {
     async function addEngineNodes() {
         try 
         {
+            var buttonEngine = document.getElementById("popup-button-engine");
+            var popupEngine = document.getElementById("popup-container-engine");
             const tableBody = document.querySelector("#api-list-engine tbody");
             const workingNodes = [];
             const failedNodes = [];
-        
+    
             for (let i = 0; i < he_rpc_nodes.length; i++) 
             {
                 const nodeUrl = he_rpc_nodes[i];
                 const row = document.createElement("tr");
                 const urlCell = document.createElement("td");
                 const statusCell = document.createElement("td");
-        
+    
                 urlCell.textContent = nodeUrl;
                 urlCell.classList.add("node-url"); // add new class to url cell
                 statusCell.textContent = "Checking...";
-        
+    
                 row.appendChild(urlCell);
                 row.appendChild(statusCell);
-        
+    
                 tableBody.appendChild(row);
-        
+    
                 // Check node status
                 checkEngineNodeStatus(nodeUrl, statusCell);
-        
+    
                 // Check node status every minute
                 setInterval(() => checkEngineNodeStatus(nodeUrl, statusCell), 60 * 1000);
             }
-      
+    
             // Reorder the list of nodes based on their status
             setTimeout(() => {
                 const rows = Array.from(tableBody.getElementsByTagName("tr"));
-        
+    
                 rows.forEach((row) => {
-                    if (row.lastChild.textContent === "Working") 
-                    {
+                    if (row.lastChild.textContent === "Working") {
                         workingNodes.push(row);
-                    } 
-                    else 
-                    {
+                    } else {
                         failedNodes.push(row);
                     }
                 });
-        
+    
                 tableBody.innerHTML = "";
-        
+    
                 // Append workingNodes first, then failedNodes
                 workingNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
-        
+    
                 failedNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
             }, 5000);
+    
+            // Add event listeners to the rows in the table body
+            var rowsEngine = tableBody.getElementsByTagName("tr");
+            for (var i = 0; i < rowsEngine.length; i++) 
+            {
+                rowsEngine[i].addEventListener("click", function (event) {
+                    // Prevent the default link behavior
+                    event.preventDefault();
+    
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = this.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    ssc = new SSC(nodeUrl);
+    
+                    // Update the button text
+                    buttonEngine.value = nodeUrl;
+                    buttonEngine.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEngEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupEngine.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                });
+            }
         } 
         catch (error) 
         {
@@ -224,12 +284,10 @@ $(window).bind("load", function () {
     }
 
     async function processAPIs() {
-        try {
-            await addHiveNodes();
-            await addEngineNodes();
-            await initializeHiveAPI();
-            await initializeEngineAPI();
-            refresh();
+        try 
+        {             
+            await initializeHiveAPI();            
+            await initializeEngineAPI();            
         } 
         catch (error) 
         {
@@ -237,7 +295,7 @@ $(window).bind("load", function () {
         }
     };
       
-    processAPIs();    
+    processAPIs();   
 
     hive.config.set('alternative_api_endpoints', rpc_nodes);
 
@@ -257,85 +315,104 @@ $(window).bind("load", function () {
     }
 
     async function getBalances(account) {
-        const res = await hive.api.getAccountsAsync([account]);
-        if (res.length > 0) {
-            const res2 = await ssc.find("tokens", "balances", { account, symbol: { "$in": ["SWAP.HIVE", "VAULT"] } }, 1000, 0, []);
-            var swaphive = res2.find(el => el.symbol === "SWAP.HIVE");
-            var vault = res2.find(el => el.symbol === "VAULT");
-            return {
-                HIVE: dec(parseFloat(res[0].balance.split(" ")[0])),
-                "SWAP.HIVE": dec(parseFloat((swaphive) ? swaphive.balance : 0)),
-                VAULT: dec(parseFloat((vault) ? vault.balance : 0))
+        try
+        {
+            const res = await hive.api.getAccountsAsync([account]);
+            if (res.length > 0) 
+            {
+                const res2 = await ssc.find("tokens", "balances", { account, symbol: { "$in": ["SWAP.HIVE", "VAULT"] } }, 1000, 0, []);
+                var swaphive = res2.find(el => el.symbol === "SWAP.HIVE");
+                var vault = res2.find(el => el.symbol === "VAULT");
+                return {
+                    HIVE: dec(parseFloat(res[0].balance.split(" ")[0])),
+                    "SWAP.HIVE": dec(parseFloat((swaphive) ? swaphive.balance : 0)),
+                    VAULT: dec(parseFloat((vault) ? vault.balance : 0))
+                }
+            } 
+            else
+            {
+                return { HIVE: 0, "SWAP.HIVE": 0, VAULT: 0 };
             }
-
-        } else return { HIVE: 0, "SWAP.HIVE": 0, VAULT: 0 };
+        }
+        catch (error)
+        {
+            console.log("Error at getBalances() : ", error);
+        }
     }
 
     async function getExtBridge () {
+        try
+        {
+            const res = await hive.api.getAccountsAsync(['kswap']);
+            var hiveLiq = res[0].balance.split(" ")[0];
+            hiveLiq = Math.floor(hiveLiq * DECIMAL) / DECIMAL;
 
-        const res = await hive.api.getAccountsAsync(['kswap']);
-        var hiveLiq = res[0].balance.split(" ")[0];
-        hiveLiq = Math.floor(hiveLiq * DECIMAL) / DECIMAL;
+            const res2 = await ssc.findOne("tokens", "balances", { account: 'kswap', symbol: 'SWAP.HIVE' });
+            var swaphiveLiq = parseFloat(res2.balance) || 0.0;
+            swaphiveLiq = Math.floor(swaphiveLiq * DECIMAL) / DECIMAL;
 
-        const res2 = await ssc.findOne("tokens", "balances", { account: 'kswap', symbol: 'SWAP.HIVE' });
-        var swaphiveLiq = parseFloat(res2.balance) || 0.0;
-        swaphiveLiq = Math.floor(swaphiveLiq * DECIMAL) / DECIMAL;
-
-        $("#hive_liq").text(hiveLiq);
-
-        $("#swap_liq").text(swaphiveLiq);
-
-        $("#bridge").removeClass("d-none");
-
-    }   
-
-    getExtBridge();
+            $("#hive_liq").text(hiveLiq);
+            $("#swap_liq").text(swaphiveLiq);
+            $("#bridge").removeClass("d-none");
+        }
+        catch (error)
+        {
+            console.log("Error at getExtBridge() : ", error);
+        }
+    };   
 
     async function refresh() {
-        updateMin();
-        bridgebal = await getBalances("uswap");
-        $("#hiveliquidity").text(bridgebal.HIVE.toFixed(3));
-        $("#swaphiveliquidity").text(bridgebal["SWAP.HIVE"].toFixed(3));
-        console.log("");
-        console.log(
-            'Update Hive Liquidity: ' + bridgebal.HIVE.toFixed(3) + ' HIVE',
-        );
+        try
+        {
+            updateMin();
+            bridgebal = await getBalances("uswap");
+            $("#hiveliquidity").text(bridgebal.HIVE.toFixed(3));
+            $("#swaphiveliquidity").text(bridgebal["SWAP.HIVE"].toFixed(3));
+            console.log("");
+            console.log(
+                'Update Hive Liquidity: ' + bridgebal.HIVE.toFixed(3) + ' HIVE',
+            );
 
-        console.log(
-            'Update SWAP.HIVE Liquidity: ' + bridgebal["SWAP.HIVE"].toFixed(3) + ' SWAP.HIVE',
-        );
+            console.log(
+                'Update SWAP.HIVE Liquidity: ' + bridgebal["SWAP.HIVE"].toFixed(3) + ' SWAP.HIVE',
+            );
 
-        const total = bridgebal.HIVE + bridgebal["SWAP.HIVE"];
-        const stablereq = total * 0.15;
+            const total = bridgebal.HIVE + bridgebal["SWAP.HIVE"];
+            const stablereq = total * 0.15;
 
-        if (bridgebal.HIVE < stablereq) {
-            stablereqHive = Math.floor((stablereq - bridgebal.HIVE) * 1000) / 1000;
-            $("#reqhive").text(stablereqHive.toFixed(3));
-        }
-        else {
-            $("#reqhive").text("0"); 
-        }
-
-        if (bridgebal["SWAP.HIVE"] < stablereq) {
-            stablereqSwapHive = Math.floor((stablereq - bridgebal["SWAP.HIVE"]) * 1000) / 1000;
-            $("#reqswaphive").text(stablereqSwapHive.toFixed(3));
-        }
-        else {
-            $("#reqswaphive").text("0"); 
-        }
-
-        try {
-            if (hive_keychain) {
-                $("#txtype").removeAttr("disabled");
-                $("#txtype").attr("checked", true);
+            if (bridgebal.HIVE < stablereq) {
+                stablereqHive = Math.floor((stablereq - bridgebal.HIVE) * 1000) / 1000;
+                $("#reqhive").text(stablereqHive.toFixed(3));
             }
-        }
-        catch (e) {
-            $("#txtype").attr("disabled", true);
-            $("#txtype").removeAttr("checked");
-        }
+            else {
+                $("#reqhive").text("0"); 
+            }
 
-        $("input[name=txtype]").change();
+            if (bridgebal["SWAP.HIVE"] < stablereq) {
+                stablereqSwapHive = Math.floor((stablereq - bridgebal["SWAP.HIVE"]) * 1000) / 1000;
+                $("#reqswaphive").text(stablereqSwapHive.toFixed(3));
+            }
+            else {
+                $("#reqswaphive").text("0"); 
+            }
+
+            try {
+                if (hive_keychain) {
+                    $("#txtype").removeAttr("disabled");
+                    $("#txtype").attr("checked", true);
+                }
+            }
+            catch (e) {
+                $("#txtype").attr("disabled", true);
+                $("#txtype").removeAttr("checked");
+            }
+
+            $("input[name=txtype]").change();
+        }
+        catch (error)
+        {
+            console.log("Error at refresh() : ", error);
+        }
     };
 
     $("#refresh").click(async function () {
@@ -350,7 +427,8 @@ $(window).bind("load", function () {
     }
 
     function updateSwap(r) {
-        try {
+        try 
+        {
             updateMin();
             const insymbol = $("#input").val();
             var outsymbol = $("#output").val();
@@ -431,8 +509,11 @@ $(window).bind("load", function () {
                 if (r) r(false);
             }
         } 
-        catch (e) { console.log(e); }
-    }
+        catch (error) 
+        { 
+            console.log("Error at updateSwap () : ", error); 
+        }
+    };
 
     var modal = new bootstrap.Modal(document.getElementById('authqr'), {
         focus: true,
@@ -457,24 +538,31 @@ $(window).bind("load", function () {
     });
 
     async function updateBalance() {
-        bal = await getBalances(user);
-        console.log("");
-        console.log(
-            `Update Hive Balance: @${user} ` + bal.HIVE.toFixed(3) + ' HIVE',
-        );
+        try
+        {
+            bal = await getBalances(user);
+            console.log("");
+            console.log(
+                `Update Hive Balance: @${user} ` + bal.HIVE.toFixed(3) + ' HIVE',
+            );
 
-        console.log(
-            `Update SWAP.HIVE Balance: @${user} ` + bal["SWAP.HIVE"].toFixed(3) + ' SWAP.HIVE',
-        );
+            console.log(
+                `Update SWAP.HIVE Balance: @${user} ` + bal["SWAP.HIVE"].toFixed(3) + ' SWAP.HIVE',
+            );
 
-        console.log(
-            `Update VAULT Balance: @${user} ` + bal.VAULT.toFixed(3) + ' VAULT',
-        );
+            console.log(
+                `Update VAULT Balance: @${user} ` + bal.VAULT.toFixed(3) + ' VAULT',
+            );
 
-        $("#hive").text(bal.HIVE.toFixed(3));
-        $("#swaphive").text(bal["SWAP.HIVE"].toFixed(3));
-        $("#vault").text(bal.VAULT.toFixed(3));
-    }
+            $("#hive").text(bal.HIVE.toFixed(3));
+            $("#swaphive").text(bal["SWAP.HIVE"].toFixed(3));
+            $("#vault").text(bal.VAULT.toFixed(3));
+        }
+        catch (error)
+        {
+            console.log("Error at updateBalance() : ", error);
+        }
+    };
 
     $("#checkbalance").click(async function () {
         user = $.trim($("#username").val().toLowerCase());
@@ -520,115 +608,126 @@ $(window).bind("load", function () {
             $("body").fadeIn(400);
           });
         });
-
     
-        // Get a reference to the button and the popup container
-        var buttonHive = document.getElementById("popup-button-hive");
-        var popupHive = document.getElementById("popup-container-hive");        
+        loadHiveNode();
+        loadEngineNode(); 
+    });
 
-        // Add an event listener to the button
-        buttonHive.addEventListener("click", function() {
-            // Show the popup
-            popupHive.style.display = "block";
-        });
-
-        // Get a reference to the API list table body
-        var tableBodyHive = document.querySelector("#api-list-hive tbody");
-
-        // Add event listeners to the rows in the table body
-        var rowsHive = tableBodyHive.getElementsByTagName("tr");
-        for (var i = 0; i < rowsHive.length; i++) 
+    async function loadHiveNode() {
+        try 
         {
-            rowsHive[i].addEventListener("click", function(event) {
-                // Prevent the default link behavior
-                event.preventDefault();
-
-                // Get the node URL from the first cell in the row
-                var nodeUrl = this.cells[0].textContent;
-
-                // Set the API endpoint to the selected node
-                hive.api.setOptions({ url: nodeUrl });
-
-                // Update the button text
-                buttonHive.value = nodeUrl;
-                buttonHive.innerHTML = nodeUrl;
-
-                // Save the selected endpoint to local storage
-                localStorage.setItem("selectedEndpoint", nodeUrl);
-
+            // Get a reference to the button and the popup container
+            var buttonHive = document.getElementById("popup-button-hive");
+            var popupHive = document.getElementById("popup-container-hive");
+        
+            // Add an event listener to the button
+            buttonHive.addEventListener("click", function () {
+                // Show the popup
+                popupHive.style.display = "block";
+                addHiveNodes();
+            });
+    
+            // Add an event listener to the close button
+            var closeButtonHive = document.getElementById("close-button-hive");
+            closeButtonHive.addEventListener("click", function () {
                 // Hide the popup
                 popupHive.style.display = "none";
-
-                // Reload the page after 1 second (adjust the time as needed)
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
             });
-        }
-
-        // Add an event listener to the close button
-        var closeButtonHive = document.getElementById("close-button-hive");
-        closeButtonHive.addEventListener("click", function() {
-            // Hide the popup
-            popupHive.style.display = "none";
-        });
-        
-        /*
-        *   HE RPC NODES
-        */
-
-
-        // Get a reference to the button and the popup container
-        var buttonEngine = document.getElementById("popup-button-engine");
-        var popupEngine = document.getElementById("popup-container-engine");        
-
-        // Add an event listener to the button
-        buttonEngine.addEventListener("click", function() {
-            // Show the popup
-            popupEngine.style.display = "block";
-        });
-
-        // Get a reference to the API list table body
-        var tableBodyEngine = document.querySelector("#api-list-engine tbody");
-
-        // Add event listeners to the rows in the table body
-        var rowsEngine = tableBodyEngine.getElementsByTagName("tr");
-        for (var i = 0; i < rowsEngine.length; i++) 
+    
+            // Get a reference to the API list table body
+            var tableBodyHive = document.querySelector("#api-list-hive tbody");
+    
+            // Add an event listener to the table body
+            tableBodyHive.addEventListener("click", function (event) {
+                var target = event.target;
+                if (target && target.nodeName === "TD") 
+                {
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = target.parentNode.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    hive.api.setOptions({ url: nodeUrl });
+    
+                    // Update the button text
+                    buttonHive.value = nodeUrl;
+                    buttonHive.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupHive.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        } 
+        catch (error) 
         {
-            rowsEngine[i].addEventListener("click", function(event) {
-                // Prevent the default link behavior
-                event.preventDefault();
-
-                // Get the node URL from the first cell in the row
-                var nodeUrl = this.cells[0].textContent;
-
-                // Set the API endpoint to the selected node
-                ssc = new SSC(nodeUrl);
-
-                // Update the button text
-                buttonEngine.value = nodeUrl;
-                buttonEngine.innerHTML = nodeUrl;
-
-                // Save the selected endpoint to local storage
-                localStorage.setItem("selectedEngEndpoint", nodeUrl);
-
+            console.log("Error at loadHiveNode(): ", error);
+        }
+    }; 
+    
+    async function loadEngineNode() {
+        try 
+        {
+            // Get a reference to the button and the popup container
+            var buttonEngine = document.getElementById("popup-button-engine");
+            var popupEngine = document.getElementById("popup-container-engine");
+        
+            // Add an event listener to the button
+            buttonEngine.addEventListener("click", function () {
+                // Show the popup
+                popupEngine.style.display = "block";
+                addEngineNodes();
+            });
+    
+            // Add an event listener to the close button
+            var closeButtonEngine = document.getElementById("close-button-engine");
+            closeButtonEngine.addEventListener("click", function () {
                 // Hide the popup
                 popupEngine.style.display = "none";
-
-                // Reload the page after 1 second (adjust the time as needed)
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
             });
+    
+            // Get a reference to the API list table body
+            var tableBodyEngine = document.querySelector("#api-list-engine tbody");
+    
+            // Add an event listener to the table body
+            tableBodyEngine.addEventListener("click", function (event) {
+                var target = event.target;
+                if (target && target.nodeName === "TD") 
+                {
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = target.parentNode.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    ssc = new SSC(nodeUrl);
+    
+                    // Update the button text
+                    buttonEngine.value = nodeUrl;
+                    buttonEngine.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEngEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupEngine.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        } 
+        catch (error) 
+        {
+            console.log("Error at loadEngineNode(): ", error);
         }
-
-        // Add an event listener to the close button
-        var closeButtonEngine = document.getElementById("close-button-engine");
-        closeButtonEngine.addEventListener("click", function() {
-            // Hide the popup
-            popupEngine.style.display = "none";
-        });
-    });
+    };
 
     $(window).scroll(function() {
         var scrollHeight = $(document).height() - $(window).height();
@@ -637,14 +736,13 @@ $(window).bind("load", function () {
         } else {
           $('.bottom-bar').removeClass('fixed');
         }
-    });
-           
+    });           
 
     if (localStorage['user']) {
         $("#username").val(localStorage['user']);
         user = localStorage['user'];
         updateBalance();
-    }
+    };
 
     // HAS implementation
     const HAS_SERVER = "wss://hive-auth.arcange.eu";
@@ -689,7 +787,7 @@ $(window).bind("load", function () {
             return true;
         else
             return false;
-    }
+    }    
 
     $("#swap").click(async function () {
         $("#swap").attr("disabled", "true");
@@ -1008,7 +1106,8 @@ $(window).bind("load", function () {
 
     async function setSwapAmounts() {
         var TIMEOUT = 1000 * 10;
-        try {
+        try 
+        {
             await timeout(TIMEOUT);
             console.log("Restting to Zero");
             $("#inputquantity").val("0.000");
@@ -1026,7 +1125,10 @@ $(window).bind("load", function () {
         catch (error) {
             console.log("setSwapAmounts : ", error);
         }
-    };    
+    };
+    
+    refresh();
+    getExtBridge();
 
     //End of refresh
 });
@@ -1054,7 +1156,6 @@ async function getSelectedEngEndpoint() {
       return "https://engine.rishipanthee.com";
     }
 };
-
 
 const historyReader = async () => {
     try {
